@@ -1,4 +1,5 @@
-<?php include_once("../templates/emmalang_sv.php");
+<?php require_once(__DIR__ . "/../lib/Auth.php"); Auth::requireAdmin();
+include_once("../templates/emmalang_sv.php");
 
 	include_once("../templates/classEmma.class.php");
 

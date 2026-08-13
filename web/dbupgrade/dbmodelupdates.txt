@@ -13,3 +13,12 @@ alter table LOGIN add column videotype varchar(255);
 -- Fixes issue https://github.com/petlof/liveresults/issues/11
 alter table login modify column organizer varchar(50) CHARACTER SET utf8 DEFAULT NULL;
 alter table login modify column name varchar(50) CHARACTER SET utf8 DEFAULT NULL;
+
+-- addition 2026: admin e-mail one-time-password login (findings S3/S4/S8)
+create table admin_otp (
+  email varchar(255) not null,
+  code_hash varchar(255) not null,
+  issued_at integer not null,
+  attempts integer not null default 0,
+  primary key (email)
+);

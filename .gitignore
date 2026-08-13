@@ -180,3 +180,4 @@ FakesAssemblies/
 web/vendor/
 web/.phpunit.result.cache
 web/composer.lock
+web/configs/admins.php

@@ -1,21 +1,35 @@
 <?php
+require_once(__DIR__ . "/../lib/Auth.php");
+Auth::requireAdmin();
 include_once("../templates/classEmma.class.php");
+
+$compid = isset($_GET['compid']) ? (int)$_GET['compid'] : 0;
+
+$isDelCtr = isset($_GET['what']) && $_GET['what'] == "delctr";
+$isDelAll = isset($_GET['what']) && $_GET['what'] == "delallctr";
+$isStateChange = isset($_POST['btnSave']) || isset($_POST['btnAdd']) || $isDelCtr || $isDelAll;
+
+if ($isStateChange && !Auth::checkCsrf($_POST['csrf'] ?? ($_GET['csrf'] ?? null)))
+{
+	http_response_code(400);
+	exit('Invalid CSRF token');
+}
 
 if (isset($_POST['btnSave']))
 {
-	Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff']);
+	Emma::UpdateCompetition($compid,$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff']);
 }
 else if (isset($_POST['btnAdd']))
 {
-	Emma::AddRadioControl($_GET['compid'],$_POST['classname'],$_POST['controlname'],$_POST['code']);
+	Emma::AddRadioControl($compid,$_POST['classname'],$_POST['controlname'],$_POST['code']);
 }
-else if (isset($_GET['what']) && $_GET['what'] == "delctr")
+else if ($isDelCtr)
 {
-	Emma::DelRadioControl($_GET['compid'],$_GET['code'],$_GET['class']);
+	Emma::DelRadioControl($compid,$_GET['code'],$_GET['class']);
 }
-else if (isset($_GET['what']) && $_GET['what'] == "delallctr")
+else if ($isDelAll)
 {
-	Emma::DelAllRadioControls($_GET['compid']);
+	Emma::DelAllRadioControls($compid);
 }
 
 
@@ -23,7 +37,9 @@ include_once("../templates/emmalang_sv.php");
 
    require_once(__DIR__ . "/../lib/Lang.php");
    require_once(__DIR__ . "/../lib/SecurityHeaders.php");
+   require_once(__DIR__ . "/../lib/Html.php");
    SecurityHeaders::apply(SecurityHeaders::forHtml());
+   $csrf = Auth::csrfToken();
 
    $lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/../templates", "en");
 
@@ -185,16 +201,17 @@ function confirmDelete(msg,url)
 
                <td>
 <?php
-	$comp = Emma::GetCompetition($_GET['compid']);
+	$comp = Emma::GetCompetition($compid);
 ?>
-<form name="form1" action="editComp.php?what=comp&compid=<?=$comp['tavid']?>" method="post">
+<form name="form1" action="editComp.php?what=comp&compid=<?= (int)$comp['tavid'] ?>" method="post">
+<input type="hidden" name="csrf" value="<?= Html::esc($csrf) ?>"/>
 <h1 class="categoriesheader">Edit competition</h1>
 <b>CompetitionID</b><br/>
-<input type="text" name="id" size="35" disabled="true" value="<?=$comp['tavid']?>"/><br/>
+<input type="text" name="id" size="35" disabled="true" value="<?= (int)$comp['tavid'] ?>"/><br/>
 <b>Competitions Name</b><br/>
-<input type="text" name="name" size="35" value="<?=$comp['compName']?>"/><br/>
+<input type="text" name="name" size="35" value="<?= Html::esc($comp['compName']) ?>"/><br/>
 <b>Organizer</b><br/>
-<input type="text" name="org" size="35" value="<?=$comp['organizer']?>"/><br/>
+<input type="text" name="org" size="35" value="<?= Html::esc($comp['organizer']) ?>"/><br/>
 <b>Date (format yyyy-mm-dd)</b><br/>
 <input type="text" name="date" size="35" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/> (ex. 2008-02-03)<br/>
 <b>Timezonediff (hours, +1 for finland, 0 for Sweden and -1 for GBR)</b><br/>
@@ -206,21 +223,23 @@ function confirmDelete(msg,url)
 </form>
 <h1 class="categoriesheader">Radio Controls</h1>
 
-<form name="formrdo1" action="editComp.php?what=radio&compid=<?=$comp['tavid']?>" method="post">
+<form name="formrdo1" action="editComp.php?what=radio&compid=<?= (int)$comp['tavid'] ?>" method="post">
+<input type="hidden" name="csrf" value="<?= Html::esc($csrf) ?>"/>
 <table border="0">
 <tr><td><b>Code</td><td><b>Name</td><td><b>Class</td><td><b>Order</td></tr>
 <?php
-	$rcontrols = Emma::GetRadioControls($_GET['compid']);
+	$rcontrols = Emma::GetRadioControls($compid);
+	$csrfUrl = urlencode($csrf);
 for ($i = 0; $i < sizeof($rcontrols); $i++)
 {
-	echo("<tr><td>".$rcontrols[$i]["code"]."</td><td>".$rcontrols[$i]["name"]."</td><td>".$rcontrols[$i]["classname"]."</td><td>".$rcontrols[$i]["corder"]."</td><td><a href='javascript:confirmDelete(\"Do you want to delete this radiocontrol?\",\"?compid=".$_GET['compid']."&what=delctr&compid=".$_GET['compid']."&code=".$rcontrols[$i]['code']."&class=".urlencode($rcontrols[$i]["classname"])."\");'>Delete</a></td></tr>");
+	echo("<tr><td>".Html::esc($rcontrols[$i]["code"])."</td><td>".Html::esc($rcontrols[$i]["name"])."</td><td>".Html::esc($rcontrols[$i]["classname"])."</td><td>".Html::esc($rcontrols[$i]["corder"])."</td><td><a href='javascript:confirmDelete(\"Do you want to delete this radiocontrol?\",\"?what=delctr&compid=".$compid."&code=".(int)$rcontrols[$i]['code']."&class=".urlencode($rcontrols[$i]["classname"])."&csrf=".$csrfUrl."\");'>Delete</a></td></tr>");
 }
 
 ?>
 </table>
 
 <br/><hr/>
-<a href="javascript:confirmDelete('Do you want to delete ALL radiocontrols?','?compid=<?= $_GET['compid']?>&what=delallctr&compid=<?= $_GET['compid']?>');">Delete all radio controls</a>
+<a href="javascript:confirmDelete('Do you want to delete ALL radiocontrols?','?what=delallctr&compid=<?= $compid ?>&csrf=<?= urlencode($csrf) ?>');">Delete all radio controls</a>
 <br/><hr/><br/>
 
 <br/><b>Add Radio Control</b><br/>
