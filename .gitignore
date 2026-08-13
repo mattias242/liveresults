@@ -181,3 +181,8 @@ web/vendor/
 web/.phpunit.result.cache
 web/composer.lock
 web/configs/admins.php
+
+# SPA frontend (Vite/Vitest)
+web/spa/node_modules/
+web/spa/dist/
+web/spa/.vite/
