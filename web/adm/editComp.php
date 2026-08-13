@@ -21,15 +21,9 @@ else if (isset($_GET['what']) && $_GET['what'] == "delallctr")
 
 include_once("../templates/emmalang_sv.php");
 
-   $lang = "en";
+   require_once(__DIR__ . "/../lib/Lang.php");
 
-   if (isset($_GET['lang']) && $_GET['lang'] != "")
-
-   {
-
-	$lang = $_GET['lang'];
-
-   }
+   $lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/../templates", "en");
 
 include_once("../templates/emmalang_$lang.php");
 

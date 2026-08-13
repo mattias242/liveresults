@@ -1,9 +1,7 @@
 <?php
 date_default_timezone_set("Europe/Stockholm");
-$lang = "sv";
-
-if (isset($_GET['lang']))
- $lang = $_GET['lang'];
+require_once(__DIR__ . "/lib/Lang.php");
+$lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/templates", "sv");
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");

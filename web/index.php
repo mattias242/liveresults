@@ -3,11 +3,8 @@ date_default_timezone_set("Europe/Stockholm");
 
 include_once("./templates/emmalang_sv.php");
 	include_once("./templates/classEmma.class.php");
-   $lang = "sv";
-   if (isset($_GET['lang']) && $_GET['lang'] != "")
-   {
-	$lang = $_GET['lang'];
-   }
+   require_once(__DIR__ . "/lib/Lang.php");
+   $lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/templates", "sv");
 include_once("./templates/emmalang_$lang.php");
 
 header('Content-Type: text/html; charset='.$CHARSET);
