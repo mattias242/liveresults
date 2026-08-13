@@ -186,3 +186,4 @@ web/configs/admins.php
 web/spa/node_modules/
 web/spa/dist/
 web/spa/.vite/
+web/configs/smtp.php

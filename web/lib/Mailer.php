@@ -9,9 +9,18 @@ declare(strict_types=1);
  * safety); send() is a thin wrapper over PHP mail() and is verified in
  * staging. Swap send() for an SMTP transport if the host has no local MTA.
  */
+require_once __DIR__ . '/SmtpConfig.php';
+require_once __DIR__ . '/MailTransport.php';
+
 final class Mailer
 {
     public const FROM = 'no-reply@liveresultat.orientering.se';
+
+    /** Choose the transport: authenticated SMTP when configured, else mail(). */
+    public static function transportFor(?SmtpConfig $config): MailTransport
+    {
+        return $config !== null ? new SmtpTransport($config) : new PhpMailTransport(self::FROM);
+    }
 
     /**
      * Build the subject/body for a one-time-password e-mail.
@@ -34,15 +43,9 @@ final class Mailer
         ];
     }
 
-    /** Send a plaintext message. Returns whether mail() accepted it. */
+    /** Send a plaintext message via the configured transport (SMTP or mail()). */
     public static function send(string $to, string $subject, string $body): bool
     {
-        // Reject addresses that could smuggle extra headers.
-        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            return false;
-        }
-        $headers = 'From: ' . self::FROM . "\r\n" .
-            "Content-Type: text/plain; charset=UTF-8\r\n";
-        return mail($to, $subject, $body, $headers);
+        return self::transportFor(SmtpConfig::load())->send($to, $subject, $body);
     }
 }
