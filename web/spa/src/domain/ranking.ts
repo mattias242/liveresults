@@ -33,6 +33,9 @@ export interface RankResult {
   start: string | number;
   splits: Record<string, string | number>;
   virtual_position?: number;
+  /** Present on real result rows (unused by ranking, used for display). */
+  name?: string;
+  club?: string;
   [key: string]: unknown;
 }
 
