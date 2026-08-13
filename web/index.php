@@ -4,6 +4,8 @@ date_default_timezone_set("Europe/Stockholm");
 include_once("./templates/emmalang_sv.php");
 	include_once("./templates/classEmma.class.php");
    require_once(__DIR__ . "/lib/Lang.php");
+   require_once(__DIR__ . "/lib/SecurityHeaders.php");
+   SecurityHeaders::apply(SecurityHeaders::forHtml());
    $lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/templates", "sv");
 include_once("./templates/emmalang_$lang.php");
 

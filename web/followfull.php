@@ -2,6 +2,8 @@
 date_default_timezone_set("Europe/Stockholm");
 require_once(__DIR__ . "/lib/Lang.php");
 require_once(__DIR__ . "/lib/Html.php");
+require_once(__DIR__ . "/lib/SecurityHeaders.php");
+SecurityHeaders::apply(SecurityHeaders::forHtml());
 $lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/templates", "sv");
 $comp = isset($_GET['comp']) ? (int)$_GET['comp'] : 0;
 
