@@ -44,4 +44,48 @@ describe('ResultsTable', () => {
     render(<ResultsTable rows={[]} language="en" runnerStatus={runnerStatus} />);
     expect(screen.getByText(/no results/i)).toBeInTheDocument();
   });
+
+  it('renders a column per split control with the split time', () => {
+    const rows = [
+      row({
+        place: 1,
+        name: 'Anna A',
+        club: 'OK Nord',
+        result: 6000,
+        status: 0,
+        progress: 100,
+        splits: { '240': 3000, '240_place': 1, '1000': 6000, '1000_place': 1 },
+      }),
+    ];
+    const splitcontrols = [
+      { code: '240', name: 'Radio 2' },
+      { code: '1000', name: 'Finish' },
+    ];
+    render(
+      <ResultsTable rows={rows} splitcontrols={splitcontrols} language="en" runnerStatus={runnerStatus} />,
+    );
+    expect(screen.getByText('Radio 2')).toBeInTheDocument();
+    expect(screen.getByText('Finish')).toBeInTheDocument();
+    // 3000 cs = 00:30 at the radio control, shown with the split place
+    expect(screen.getByText('00:30 (1)')).toBeInTheDocument();
+  });
+
+  it('leaves split cells blank for controls a runner has not reached', () => {
+    const rows = [
+      row({ place: '', name: 'Bo B', club: 'OK Syd', result: 0, status: 0, progress: 20, splits: { '240': '', '1000': '' } }),
+    ];
+    const splitcontrols = [{ code: '240', name: 'Radio 2' }];
+    const { container } = render(
+      <ResultsTable rows={rows} splitcontrols={splitcontrols} language="en" runnerStatus={runnerStatus} />,
+    );
+    const splitCells = container.querySelectorAll('td.col-split');
+    expect(splitCells).toHaveLength(1);
+    expect(splitCells[0].textContent).toBe('');
+  });
+
+  it('shows a mass-start indicator when the class is a mass start', () => {
+    const rows = [row({ place: 1, name: 'A', club: '', result: 6000, status: 0, progress: 100 })];
+    render(<ResultsTable rows={rows} language="en" runnerStatus={runnerStatus} isMassStart />);
+    expect(screen.getByText(/mass start/i)).toBeInTheDocument();
+  });
 });

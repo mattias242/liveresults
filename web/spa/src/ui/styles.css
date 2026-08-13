@@ -78,10 +78,31 @@ body {
   color: var(--muted);
 }
 
+/* Wide split tables scroll horizontally instead of breaking the page. */
+.results-scroll {
+  overflow-x: auto;
+}
+
+.results-badge {
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #08131f;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .results-table {
   width: 100%;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
+}
+
+.col-split {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .results-table th,

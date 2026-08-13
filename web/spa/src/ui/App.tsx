@@ -6,7 +6,7 @@ import { ClubController } from '../state/clubController';
 import { LastPassingsController } from '../state/lastPassingsController';
 import type { RankResult } from '../domain/ranking';
 import type { RunnerStatusMap } from '../domain/time';
-import type { Passing, ResultRow } from '../api/types';
+import type { Passing, ResultRow, SplitControl } from '../api/types';
 import { ClassList } from './ClassList';
 import { ResultsTable } from './ResultsTable';
 import { ClubResults } from './ClubResults';
@@ -45,6 +45,8 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
   const [classes, setClasses] = useState<string[]>([]);
   const [selection, setSelection] = useState<Selection>(readSelectionFromHash());
   const [rows, setRows] = useState<RankResult[]>([]);
+  const [splitcontrols, setSplitcontrols] = useState<SplitControl[]>([]);
+  const [isMassStart, setIsMassStart] = useState(false);
   const [clubRows, setClubRows] = useState<ResultRow[]>([]);
   const [clubName, setClubName] = useState('');
   const [passings, setPassings] = useState<Passing[]>([]);
@@ -109,7 +111,11 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
         const u = await ctrl.refreshClass(selection.name);
         if (stop) return;
         setError(u.error ?? null);
-        if (u.changed) setRows(u.rows);
+        if (u.changed) {
+          setRows(u.rows);
+          setSplitcontrols(u.splitcontrols);
+          setIsMassStart(u.isMassStart);
+        }
       };
     } else {
       const ctrl = new ClubController(api, comp);
@@ -145,7 +151,13 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
           {selection?.kind === 'class' && (
             <>
               <h2>{selection.name}</h2>
-              <ResultsTable rows={rows} language={lang} runnerStatus={RUNNER_STATUS_EN} />
+              <ResultsTable
+                rows={rows}
+                splitcontrols={splitcontrols}
+                isMassStart={isMassStart}
+                language={lang}
+                runnerStatus={RUNNER_STATUS_EN}
+              />
             </>
           )}
           {selection?.kind === 'club' && (

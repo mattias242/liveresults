@@ -74,6 +74,9 @@ describe('ResultsController.refreshClass', () => {
 
     const update = await controller.refreshClass('Mass');
     expect(update.rows.map((r) => r.name)).toEqual(['Fast', 'Slow']);
+    expect(update.isMassStart).toBe(true);
+    expect(update.splitcontrols).toHaveLength(1);
+    expect(update.splitcontrols[0].code).toBe('1000');
   });
 
   it('keeps previous rows and flags an error on failure', async () => {
