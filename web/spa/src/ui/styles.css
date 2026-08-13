@@ -1,0 +1,140 @@
+:root {
+  --bg: #1f1f22;
+  --panel: #2a2a2e;
+  --panel-alt: #303036;
+  --text: #f2f2f4;
+  --muted: #b3b3ba;
+  --accent: #4da3ff;
+  --border: #3a3a40;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-header {
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.app-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.app-sidebar {
+  flex: 0 0 auto;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.classlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.classlist-item {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+}
+
+.classlist-item.is-selected {
+  background: var(--accent);
+  color: #08131f;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.classlist-loading,
+.results-empty {
+  color: var(--muted);
+}
+
+/* Wide split tables scroll horizontally instead of breaking the page. */
+.results-scroll {
+  overflow-x: auto;
+}
+
+.results-badge {
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #08131f;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-split {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.results-table th,
+.results-table td {
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.results-table tbody tr:nth-child(even) {
+  background: var(--panel-alt);
+}
+
+.col-place,
+.col-result {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.app-error {
+  color: #ff8080;
+}
+
+/* Two-column layout on wider screens; stacked and scrollable on phones. */
+@media (min-width: 720px) {
+  .app-body {
+    flex-direction: row;
+  }
+  .app-sidebar {
+    flex: 0 0 220px;
+  }
+  .classlist {
+    flex-direction: column;
+  }
+}

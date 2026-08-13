@@ -175,3 +175,15 @@ UpgradeLog*.htm
 FakesAssemblies/
 /LiveResults.Client/bin - Copy/Debug - Copy
 /LiveResults.Client/bin - Copy/DebugOE
+
+# PHP web tier (Composer / PHPUnit)
+web/vendor/
+web/.phpunit.result.cache
+web/composer.lock
+web/configs/admins.php
+
+# SPA frontend (Vite/Vitest)
+web/spa/node_modules/
+web/spa/dist/
+web/spa/.vite/
+web/configs/smtp.php

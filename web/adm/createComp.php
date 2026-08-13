@@ -1,8 +1,15 @@
 <?php
+require_once(__DIR__ . "/../lib/Auth.php");
+Auth::requireAdmin();
 include_once("../templates/classEmma.class.php");
 
 if (isset($_POST['btnSubmit']))
 {
+	if (!Auth::checkCsrf($_POST['csrf'] ?? null))
+	{
+		http_response_code(400);
+		exit('Invalid CSRF token');
+	}
 	Emma::CreateCompetition($_POST['name'],$_POST['org'],$_POST['date']);
 	header("Location: admincompetitions.php");
 	exit;
@@ -11,15 +18,11 @@ if (isset($_POST['btnSubmit']))
 
 include_once("../templates/emmalang_sv.php");
 
-   $lang = "en";
+   require_once(__DIR__ . "/../lib/Lang.php");
+   require_once(__DIR__ . "/../lib/SecurityHeaders.php");
+   SecurityHeaders::apply(SecurityHeaders::forHtml());
 
-   if (isset($_GET['lang']) && $_GET['lang'] != "")
-
-   {
-
-	$lang = $_GET['lang'];
-
-   }
+   $lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/../templates", "en");
 
 include_once("../templates/emmalang_$lang.php");
 
@@ -144,6 +147,7 @@ el.style.backgroundColor = "";
 
                <td>
 <form name="form1" action="createComp.php" method="post">
+<input type="hidden" name="csrf" value="<?= htmlspecialchars(Auth::csrfToken(), ENT_QUOTES, 'UTF-8') ?>"/>
 <h1 class="categoriesheader">New competition</h1>
 <b>Competitions Name</b><br/>
 <input type="text" name="name" size="15"/><br/>

@@ -1,9 +1,9 @@
 <?php
 date_default_timezone_set("Europe/Stockholm");
-$lang = "sv";
-
-if (isset($_GET['lang']))
- $lang = $_GET['lang'];
+require_once(__DIR__ . "/lib/Lang.php");
+require_once(__DIR__ . "/lib/SecurityHeaders.php");
+$lang = Lang::resolve($_GET['lang'] ?? null, __DIR__ . "/templates", "sv");
+SecurityHeaders::apply(SecurityHeaders::forJson());
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
@@ -25,6 +25,28 @@ if (!isset($_GET['method']))
 
 $pretty = isset($_GET['pretty']);
 $br = $pretty ? "\n" : "";
+
+// State-changing methods require an authenticated admin session + CSRF token
+// (findings S4). Read methods stay session-free so polling remains cacheable.
+$writeMethods = array('setcompetitioninfo', 'createcompetition');
+if (in_array($_GET['method'], $writeMethods, true))
+{
+    require_once(__DIR__ . "/lib/Auth.php");
+    Auth::start();
+    if (!Auth::isAuthenticated($_SESSION))
+    {
+        http_response_code(403);
+        echo('{"status": "ERR", "message": "Not authorized"}');
+        exit;
+    }
+    if (!Auth::checkCsrf($_POST['csrf'] ?? null))
+    {
+        http_response_code(400);
+        echo('{"status": "ERR", "message": "Invalid CSRF token"}');
+        exit;
+    }
+}
+
 ///Method returns all competitions available
 if ($_GET['method'] == 'getcompetitions')
 {
