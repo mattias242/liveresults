@@ -83,6 +83,26 @@ describe('ResultsTable', () => {
     expect(splitCells[0].textContent).toBe('');
   });
 
+  it('renders a total column for multi-day events', () => {
+    const rows = [
+      row({
+        place: 1,
+        name: 'Anna A',
+        club: 'OK Nord',
+        result: 6000,
+        status: 0,
+        progress: 100,
+        totalresult: 12000,
+        totalstatus: 0,
+        totalplace: 2,
+      }),
+    ];
+    render(<ResultsTable rows={rows} language="en" runnerStatus={runnerStatus} showTotal />);
+    expect(screen.getByText('Total')).toBeInTheDocument();
+    // 12000 cs = 02:00 total, shown with total place
+    expect(screen.getByText('02:00 (2)')).toBeInTheDocument();
+  });
+
   it('shows a mass-start indicator when the class is a mass start', () => {
     const rows = [row({ place: 1, name: 'A', club: '', result: 6000, status: 0, progress: 100 })];
     render(<ResultsTable rows={rows} language="en" runnerStatus={runnerStatus} isMassStart />);

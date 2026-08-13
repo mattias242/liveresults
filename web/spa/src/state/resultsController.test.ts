@@ -79,6 +79,17 @@ describe('ResultsController.refreshClass', () => {
     expect(update.splitcontrols[0].code).toBe('1000');
   });
 
+  it('requests totals when includeTotal is set', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({ status: 'OK', className: 'H21', splitcontrols: [], results: [], hash: 'h1' }),
+    );
+    const api = new LiveResultsApi('api.php', fetchMock);
+    const controller = new ResultsController(api, 5, true);
+    await controller.refreshClass('H21');
+    const url = fetchMock.mock.calls[0][0] as string;
+    expect(url).toContain('includetotal=true');
+  });
+
   it('keeps previous rows and flags an error on failure', async () => {
     const api = apiReturning(
       {

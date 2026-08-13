@@ -50,6 +50,7 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
   const [clubRows, setClubRows] = useState<ResultRow[]>([]);
   const [clubName, setClubName] = useState('');
   const [passings, setPassings] = useState<Passing[]>([]);
+  const [isMultiDay, setIsMultiDay] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const apiRef = useRef<LiveResultsApi | null>(null);
@@ -67,6 +68,17 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
+
+  // Load competition info once to know whether totals apply (multi-day).
+  useEffect(() => {
+    let stop = false;
+    apiRef.current!.getCompetitionInfo(comp).then((res) => {
+      if (!stop && res.status === 'ok') {
+        setIsMultiDay(res.data.multidaystage !== undefined);
+      }
+    });
+    return () => { stop = true; };
+  }, [comp]);
 
   // Poll the class list.
   useEffect(() => {
@@ -106,7 +118,7 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
     let tick: () => Promise<void>;
 
     if (selection.kind === 'class') {
-      const ctrl = new ResultsController(api, comp);
+      const ctrl = new ResultsController(api, comp, isMultiDay);
       tick = async () => {
         const u = await ctrl.refreshClass(selection.name);
         if (stop) return;
@@ -130,7 +142,7 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
     tick();
     const id = window.setInterval(tick, RESULT_POLL_MS);
     return () => { stop = true; window.clearInterval(id); };
-  }, [selection, comp]);
+  }, [selection, comp, isMultiDay]);
 
   const selectClass = (c: string) => {
     window.location.hash = encodeURIComponent(c);

@@ -8,6 +8,17 @@ export interface ResultsTableProps {
   runnerStatus: RunnerStatusMap;
   splitcontrols?: SplitControl[];
   isMassStart?: boolean;
+  showTotal?: boolean;
+}
+
+function totalCell(row: RankResult, runnerStatus: RunnerStatusMap, language: string): string {
+  const total = row.totalresult;
+  if (total === undefined) {
+    return '';
+  }
+  const time = formatTime(Number(total), Number(row.totalstatus ?? 0), runnerStatus, { language });
+  const place = row.totalplace;
+  return place !== undefined && place !== '' ? `${time} (${place})` : time;
 }
 
 function splitCell(row: RankResult, code: string, language: string): string {
@@ -26,7 +37,7 @@ function splitCell(row: RankResult, code: string, language: string): string {
  * output matches the legacy site. Optionally renders a column per split control
  * and a mass-start indicator.
  */
-export function ResultsTable({ rows, language, runnerStatus, splitcontrols = [], isMassStart = false }: ResultsTableProps) {
+export function ResultsTable({ rows, language, runnerStatus, splitcontrols = [], isMassStart = false, showTotal = false }: ResultsTableProps) {
   if (rows.length === 0) {
     return <p className="results-empty">No results yet.</p>;
   }
@@ -45,6 +56,7 @@ export function ResultsTable({ rows, language, runnerStatus, splitcontrols = [],
                 <th scope="col" key={sc.code}>{sc.name}</th>
               ))}
               <th scope="col">Result</th>
+              {showTotal && <th scope="col">Total</th>}
             </tr>
           </thead>
           <tbody>
@@ -57,6 +69,7 @@ export function ResultsTable({ rows, language, runnerStatus, splitcontrols = [],
                   <td className="col-split" key={sc.code}>{splitCell(r, sc.code, language)}</td>
                 ))}
                 <td className="col-result">{formatTime(r.result, r.status, runnerStatus, { language })}</td>
+                {showTotal && <td className="col-total">{totalCell(r, runnerStatus, language)}</td>}
               </tr>
             ))}
           </tbody>

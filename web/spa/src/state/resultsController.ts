@@ -32,11 +32,12 @@ export class ResultsController {
   constructor(
     private readonly api: LiveResultsApi,
     private readonly comp: number,
+    private readonly includeTotal = false,
   ) {}
 
   /** Fetch, rank and cache the results for a class. */
   async refreshClass(className: string): Promise<ClassUpdate> {
-    const res = await this.api.getClassResults(this.comp, className, this.lastHash);
+    const res = await this.api.getClassResults(this.comp, className, this.lastHash, this.includeTotal);
 
     if (res.status === 'notModified') {
       return this.unchanged();
