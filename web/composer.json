@@ -1,0 +1,24 @@
+{
+    "name": "liveresults/web",
+    "description": "LiveResults (EmmaClient) web tier",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "classmap": ["lib/"]
+    },
+    "autoload-dev": {
+        "classmap": ["tests/"]
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

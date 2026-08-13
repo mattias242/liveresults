@@ -175,3 +175,8 @@ UpgradeLog*.htm
 FakesAssemblies/
 /LiveResults.Client/bin - Copy/Debug - Copy
 /LiveResults.Client/bin - Copy/DebugOE
+
+# PHP web tier (Composer / PHPUnit)
+web/vendor/
+web/.phpunit.result.cache
+web/composer.lock
