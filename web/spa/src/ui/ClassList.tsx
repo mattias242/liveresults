@@ -2,12 +2,13 @@ export interface ClassListProps {
   classes: string[];
   selected: string | null;
   onSelect: (className: string) => void;
+  loadingLabel?: string;
 }
 
 /** Sidebar list of classes; clicking one selects it. */
-export function ClassList({ classes, selected, onSelect }: ClassListProps) {
+export function ClassList({ classes, selected, onSelect, loadingLabel = 'Loading classes…' }: ClassListProps) {
   if (classes.length === 0) {
-    return <p className="classlist-loading">Loading classes…</p>;
+    return <p className="classlist-loading">{loadingLabel}</p>;
   }
 
   return (

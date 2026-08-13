@@ -2,12 +2,13 @@ import type { Passing } from '../api/types';
 
 export interface LastPassingsProps {
   passings: Passing[];
+  emptyLabel?: string;
 }
 
 /** Compact live feed of the most recent control passings. */
-export function LastPassings({ passings }: LastPassingsProps) {
+export function LastPassings({ passings, emptyLabel = 'No passings yet.' }: LastPassingsProps) {
   if (passings.length === 0) {
-    return <p className="passings-empty">No passings yet.</p>;
+    return <p className="passings-empty">{emptyLabel}</p>;
   }
 
   return (

@@ -1,6 +1,7 @@
 import type { RankResult } from '../domain/ranking';
 import type { SplitControl } from '../api/types';
 import { formatTime, type RunnerStatusMap } from '../domain/time';
+import { t } from '../i18n/messages';
 
 export interface ResultsTableProps {
   rows: RankResult[];
@@ -39,24 +40,24 @@ function splitCell(row: RankResult, code: string, language: string): string {
  */
 export function ResultsTable({ rows, language, runnerStatus, splitcontrols = [], isMassStart = false, showTotal = false }: ResultsTableProps) {
   if (rows.length === 0) {
-    return <p className="results-empty">No results yet.</p>;
+    return <p className="results-empty">{t(language, 'noResults')}</p>;
   }
 
   return (
     <div className="results">
-      {isMassStart && <p className="results-badge">Mass start</p>}
+      {isMassStart && <p className="results-badge">{t(language, 'massStart')}</p>}
       <div className="results-scroll">
         <table className="results-table">
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Club</th>
+              <th scope="col">{t(language, 'colName')}</th>
+              <th scope="col">{t(language, 'colClub')}</th>
               {splitcontrols.map((sc) => (
                 <th scope="col" key={sc.code}>{sc.name}</th>
               ))}
-              <th scope="col">Result</th>
-              {showTotal && <th scope="col">Total</th>}
+              <th scope="col">{t(language, 'colResult')}</th>
+              {showTotal && <th scope="col">{t(language, 'colTotal')}</th>}
             </tr>
           </thead>
           <tbody>

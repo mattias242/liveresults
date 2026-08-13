@@ -1,5 +1,6 @@
 import type { ResultRow } from '../api/types';
 import { formatTime, type RunnerStatusMap } from '../domain/time';
+import { t } from '../i18n/messages';
 
 export interface ClubResultsProps {
   clubName: string;
@@ -14,15 +15,15 @@ export function ClubResults({ clubName, rows, language, runnerStatus }: ClubResu
     <section className="club">
       <h2>{clubName}</h2>
       {rows.length === 0 ? (
-        <p className="results-empty">No results yet.</p>
+        <p className="results-empty">{t(language, 'noResults')}</p>
       ) : (
         <table className="results-table">
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Class</th>
-              <th scope="col">Result</th>
+              <th scope="col">{t(language, 'colName')}</th>
+              <th scope="col">{t(language, 'colClass')}</th>
+              <th scope="col">{t(language, 'colResult')}</th>
             </tr>
           </thead>
           <tbody>

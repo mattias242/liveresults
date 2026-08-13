@@ -5,8 +5,8 @@ import { ResultsController } from '../state/resultsController';
 import { ClubController } from '../state/clubController';
 import { LastPassingsController } from '../state/lastPassingsController';
 import type { RankResult } from '../domain/ranking';
-import type { RunnerStatusMap } from '../domain/time';
 import type { Passing, ResultRow, SplitControl } from '../api/types';
+import { t, resolveLang, runnerStatusFor } from '../i18n/messages';
 import { ClassList } from './ClassList';
 import { ResultsTable } from './ResultsTable';
 import { ClubResults } from './ClubResults';
@@ -16,16 +16,16 @@ const CLASS_POLL_MS = 60000;
 const RESULT_POLL_MS = 15000;
 const PASSINGS_POLL_MS = 15000;
 
-// Minimal status labels for now; full i18n comes later.
-const RUNNER_STATUS_EN: RunnerStatusMap = {
-  0: '', 1: 'DNS', 2: 'DNF', 3: 'MP', 4: 'DSQ', 5: 'OT', 9: '', 10: '', 11: 'w/o', 12: '',
-};
-
 type Selection = { kind: 'class' | 'club'; name: string } | null;
 
 function readComp(): number {
   const p = new URLSearchParams(window.location.search);
   return parseInt(p.get('comp') ?? '0', 10) || 0;
+}
+
+function readLang(): string {
+  const p = new URLSearchParams(window.location.search);
+  return resolveLang(p.get('lang'));
 }
 
 function readSelectionFromHash(): Selection {
@@ -40,8 +40,10 @@ export interface AppProps {
   lang?: string;
 }
 
-export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
+export function App({ apiBaseUrl = '../api.php', lang: langProp }: AppProps) {
   const comp = readComp();
+  const lang = langProp ? resolveLang(langProp) : readLang();
+  const runnerStatus = runnerStatusFor(lang);
   const [classes, setClasses] = useState<string[]>([]);
   const [selection, setSelection] = useState<Selection>(readSelectionFromHash());
   const [rows, setRows] = useState<RankResult[]>([]);
@@ -152,11 +154,16 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Liveresultat</h1>
+        <h1>{t(lang, 'title')}</h1>
       </header>
       <div className="app-body">
         <nav className="app-sidebar" aria-label="Classes">
-          <ClassList classes={classes} selected={selection?.kind === 'class' ? selection.name : null} onSelect={selectClass} />
+          <ClassList
+            classes={classes}
+            selected={selection?.kind === 'class' ? selection.name : null}
+            onSelect={selectClass}
+            loadingLabel={t(lang, 'loadingClasses')}
+          />
         </nav>
         <main className="app-main">
           {error && <p className="app-error" role="alert">{error}</p>}
@@ -168,17 +175,17 @@ export function App({ apiBaseUrl = '../api.php', lang = 'en' }: AppProps) {
                 splitcontrols={splitcontrols}
                 isMassStart={isMassStart}
                 language={lang}
-                runnerStatus={RUNNER_STATUS_EN}
+                runnerStatus={runnerStatus}
               />
             </>
           )}
           {selection?.kind === 'club' && (
-            <ClubResults clubName={clubName || selection.name} rows={clubRows} language={lang} runnerStatus={RUNNER_STATUS_EN} />
+            <ClubResults clubName={clubName || selection.name} rows={clubRows} language={lang} runnerStatus={runnerStatus} />
           )}
           {!selection && (
             <>
-              <h2>Last passings</h2>
-              <LastPassings passings={passings} />
+              <h2>{t(lang, 'lastPassings')}</h2>
+              <LastPassings passings={passings} emptyLabel={t(lang, 'noPassings')} />
             </>
           )}
         </main>
